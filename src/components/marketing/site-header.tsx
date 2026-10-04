@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FlockOpsMark } from "@/components/brand/flockops-mark";
 import { site } from "@/lib/site";
 
 export function SiteHeader() {
@@ -6,9 +7,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-20 border-b border-line/80 bg-background/90 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <Link href="/" className="flex items-center gap-2.5">
-          <span className="grid h-8 w-8 place-items-center rounded-md bg-sage-deep text-[13px] font-semibold tracking-wide text-panel">
-            FO
-          </span>
+          <FlockOpsMark className="h-8 w-8" />
           <span className="text-[15px] font-semibold tracking-tight text-ink">
             {site.name}
           </span>

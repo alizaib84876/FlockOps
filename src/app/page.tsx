@@ -40,7 +40,7 @@ export default function Home() {
         <section className="mx-auto grid max-w-6xl gap-12 px-5 py-16 lg:grid-cols-[1.15fr_0.85fr] lg:items-center lg:py-24">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-copper">
-              Commercial poultry SaaS
+              Commercial poultry operations
             </p>
             <h1 className="display mt-4 max-w-xl text-5xl leading-[1.05] text-ink sm:text-6xl">
               {site.tagline}

@@ -1,3 +1,5 @@
+import { listFarms } from "@/lib/farms/queries";
+import { listFlocks } from "@/lib/flocks/queries";
 import { createClient } from "@/lib/supabase/server";
 import type {
   Expense,
@@ -12,12 +14,16 @@ function first<T>(value: T | T[] | null | undefined): T | null {
 }
 
 export async function listExpenses(): Promise<Expense[]> {
+  const farmIds = (await listFarms()).map((farm) => farm.id);
+  if (farmIds.length === 0) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("expenses")
     .select(
       "id, farm_id, flock_id, category, amount, description, expense_date, receipt_url, farms(name), flocks(flock_number)",
     )
+    .in("farm_id", farmIds)
     .order("expense_date", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -43,12 +49,16 @@ export async function listExpenses(): Promise<Expense[]> {
 }
 
 export async function listSales(): Promise<Sale[]> {
+  const flockIds = (await listFlocks()).map((flock) => flock.id);
+  if (flockIds.length === 0) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("sales")
     .select(
       "id, flock_id, sale_date, buyer_name, empty_weight_kg, loaded_weight_kg, total_weight_kg, price_per_kg, total_amount, driver_name, notes, flocks(flock_number, sheds(farms(name)))",
     )
+    .in("flock_id", flockIds)
     .order("sale_date", { ascending: false });
 
   if (error) throw new Error(error.message);
@@ -110,6 +120,9 @@ export async function getSale(saleId: string): Promise<Sale | null> {
 }
 
 export async function listExpenseEdits(expenseId: string): Promise<FinanceEdit[]> {
+  const expense = await getExpense(expenseId);
+  if (!expense) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("expense_edits")
@@ -121,6 +134,9 @@ export async function listExpenseEdits(expenseId: string): Promise<FinanceEdit[]
 }
 
 export async function listSaleEdits(saleId: string): Promise<FinanceEdit[]> {
+  const sale = await getSale(saleId);
+  if (!sale) return [];
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("sale_edits")

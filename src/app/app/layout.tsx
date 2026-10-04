@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { AppNav } from "@/components/app/app-nav";
+import { FlockOpsMark } from "@/components/brand/flockops-mark";
 import { OfflineProvider } from "@/components/offline/offline-provider";
 import { SyncBadge } from "@/components/offline/sync-badge";
 import { getProfile } from "@/lib/auth/get-profile";
@@ -20,11 +21,9 @@ export default async function AppLayout({
       <header className="border-b border-line bg-panel">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4">
           <div className="flex items-center gap-3">
-            <Link
-              href="/app"
-              className="grid h-8 w-8 place-items-center rounded-md bg-sage-deep text-[13px] font-semibold text-panel"
-            >
-              FO
+            <Link href="/app" className="block">
+              <FlockOpsMark className="h-8 w-8" />
+              <span className="sr-only">{site.name}</span>
             </Link>
             <div>
               <p className="text-sm font-semibold text-ink">{site.name}</p>
