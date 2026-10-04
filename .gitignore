@@ -40,3 +40,12 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local working notes
+AGENTS.md
+CLAUDE.md
+PROJECT_PROGRESS.md
+ai_development_guide_memory_protocol.md
+initial_project_progress_template.md
+poultry_farm_system_specification.md
+supabase/README.md
