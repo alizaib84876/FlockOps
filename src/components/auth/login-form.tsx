@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PasswordInput } from "@/components/auth/password-input";
 import { createClient } from "@/lib/supabase/client";
 
 function safeNext(value: string | null) {
@@ -16,6 +17,12 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const notice =
+    searchParams.get("verified") === "1"
+      ? "Email confirmed. Sign in to continue."
+      : searchParams.get("reset") === "1"
+        ? "Password updated. Sign in with your new password."
+        : null;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -56,22 +63,22 @@ export function LoginForm() {
         />
       </label>
       <div>
-        <label className="block text-sm font-medium text-ink">
-          Password
-          <input
-            name="password"
-            type="password"
-            required
-            autoComplete="current-password"
-            className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-          />
-        </label>
+      <PasswordInput
+        name="password"
+        label="Password"
+        autoComplete="current-password"
+      />
         <p className="mt-2 text-right text-sm">
           <Link href="/forgot-password" className="font-medium text-sage hover:text-sage-deep">
             Forgot password
           </Link>
         </p>
       </div>
+      {notice ? (
+        <p className="text-sm text-sage" role="status">
+          {notice}
+        </p>
+      ) : null}
       {error ? (
         <p className="text-sm text-copper" role="alert">
           {error}

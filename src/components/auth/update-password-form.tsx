@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { PasswordInput } from "@/components/auth/password-input";
 import { createClient } from "@/lib/supabase/client";
 
 export function UpdatePasswordForm() {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [hasSession, setHasSession] = useState<boolean | null>(null);
+  const [done, setDone] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -37,15 +37,31 @@ export function UpdatePasswordForm() {
     setPending(true);
     const supabase = createClient();
     const { error: updateError } = await supabase.auth.updateUser({ password });
-    setPending(false);
-
     if (updateError) {
+      setPending(false);
       setError(updateError.message);
       return;
     }
 
-    router.push("/app");
-    router.refresh();
+    await supabase.auth.signOut();
+    setPending(false);
+    setDone(true);
+  }
+
+  if (done) {
+    return (
+      <div className="mt-8 space-y-4">
+        <p className="text-sm text-sage" role="status">
+          Password updated. Sign in with your new password.
+        </p>
+        <Link
+          href="/login"
+          className="flex h-12 items-center justify-center rounded-full bg-sage-deep text-sm font-medium text-panel"
+        >
+          Sign in
+        </Link>
+      </div>
+    );
   }
 
   if (hasSession === false) {
@@ -66,28 +82,18 @@ export function UpdatePasswordForm() {
 
   return (
     <form className="mt-8 space-y-4" onSubmit={onSubmit} aria-label="Set new password">
-      <label className="block text-sm font-medium text-ink">
-        New password
-        <input
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-        />
-      </label>
-      <label className="block text-sm font-medium text-ink">
-        Confirm password
-        <input
-          name="confirm"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-        />
-      </label>
+      <PasswordInput
+        name="password"
+        label="New password"
+        autoComplete="new-password"
+        minLength={8}
+      />
+      <PasswordInput
+        name="confirm"
+        label="Confirm password"
+        autoComplete="new-password"
+        minLength={8}
+      />
       {error ? (
         <p className="text-sm text-copper" role="alert">
           {error}

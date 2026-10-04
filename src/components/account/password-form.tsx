@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PasswordInput } from "@/components/auth/password-input";
 import { createClient } from "@/lib/supabase/client";
 
 export function PasswordForm() {
@@ -42,28 +43,18 @@ export function PasswordForm() {
 
   return (
     <form className="space-y-4" onSubmit={onSubmit}>
-      <label className="block text-sm font-medium text-ink">
-        New password
-        <input
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-        />
-      </label>
-      <label className="block text-sm font-medium text-ink">
-        Confirm password
-        <input
-          name="confirm"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-        />
-      </label>
+      <PasswordInput
+        name="password"
+        label="New password"
+        autoComplete="new-password"
+        minLength={8}
+      />
+      <PasswordInput
+        name="confirm"
+        label="Confirm password"
+        autoComplete="new-password"
+        minLength={8}
+      />
       {error ? (
         <p className="text-sm text-copper" role="alert">
           {error}

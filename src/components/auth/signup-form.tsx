@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { PasswordInput } from "@/components/auth/password-input";
 import { createClient } from "@/lib/supabase/client";
 import type { InvitePreview } from "@/lib/team/types";
 import { roleLabel } from "@/lib/auth/profile";
@@ -14,7 +14,6 @@ export function SignupForm({
   inviteToken?: string;
   invite?: InvitePreview | null;
 }) {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -55,26 +54,44 @@ export function SignupForm({
               phone_number: phoneNumber,
               organization_name: organizationName,
             },
-        emailRedirectTo: `${window.location.origin}/auth/confirm?next=/app`,
+        emailRedirectTo: `${window.location.origin}/auth/confirm?next=/login`,
       },
     });
 
-    setPending(false);
-
     if (signUpError) {
+      setPending(false);
       setError(signUpError.message);
       return;
     }
 
-    if (!data.session) {
-      setMessage(
-        "Check your email to confirm the account, then sign in to open the workspace.",
-      );
-      return;
+    if (data.session) {
+      await supabase.auth.signOut();
     }
 
-    router.push("/app");
-    router.refresh();
+    setPending(false);
+    setMessage(
+      data.session
+        ? isInvite
+          ? "Account created. Sign in to continue."
+          : "Workspace created. Sign in to continue."
+        : "Check your email to confirm the account, then sign in.",
+    );
+  }
+
+  if (message) {
+    return (
+      <div className="mt-8 space-y-4">
+        <p className="text-sm text-sage" role="status">
+          {message}
+        </p>
+        <Link
+          href="/login"
+          className="flex h-12 items-center justify-center rounded-full bg-sage-deep text-sm font-medium text-panel"
+        >
+          Sign in
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -127,28 +144,18 @@ export function SignupForm({
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
         />
       </label>
-      <label className="block text-sm font-medium text-ink">
-        Password
-        <input
-          name="password"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-        />
-      </label>
-      <label className="block text-sm font-medium text-ink">
-        Confirm password
-        <input
-          name="confirm"
-          type="password"
-          required
-          minLength={8}
-          autoComplete="new-password"
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-        />
-      </label>
+      <PasswordInput
+        name="password"
+        label="Password"
+        autoComplete="new-password"
+        minLength={8}
+      />
+      <PasswordInput
+        name="confirm"
+        label="Confirm password"
+        autoComplete="new-password"
+        minLength={8}
+      />
       {error ? (
         <p className="text-sm text-copper" role="alert">
           {error}
