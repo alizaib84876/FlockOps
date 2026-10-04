@@ -1,6 +1,10 @@
 import Link from "next/link";
+import { MissingLogsReminder } from "@/components/logs/missing-logs-reminder";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { listFlocks } from "@/lib/flocks/queries";
+import { listAllDailyLogs } from "@/lib/logs/all";
+import { missingLogsByFarm } from "@/lib/logs/missing";
+import { todayIsoDate } from "@/lib/logs/types";
 
 export const metadata = {
   title: "Daily logs",
@@ -10,8 +14,10 @@ export default async function LogsIndexPage() {
   const profile = await requireProfile();
   const isWorker = profile.role === "WORKER";
   const flocks = await listFlocks();
+  const logs = await listAllDailyLogs();
   const active = flocks.filter((flock) => flock.status === "ACTIVE");
   const others = flocks.filter((flock) => flock.status !== "ACTIVE");
+  const missingToday = missingLogsByFarm(flocks, logs, todayIsoDate());
 
   return (
     <div className="space-y-8">
@@ -21,6 +27,8 @@ export default async function LogsIndexPage() {
         </p>
         <h1 className="display mt-2 text-4xl text-ink">Daily logs</h1>
       </div>
+
+      <MissingLogsReminder date={todayIsoDate()} groups={missingToday} />
 
       <section>
         <h2 className="text-lg font-semibold text-ink">Active flocks</h2>

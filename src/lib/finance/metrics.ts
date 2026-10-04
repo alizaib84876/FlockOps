@@ -51,7 +51,6 @@ export function buildFlockMetrics(
   return flocks.map((flock) => {
     const flockLogs = logs.filter((log) => log.flock_id === flock.id);
     const mortality = flockLogs.reduce((sum, log) => sum + log.mortality, 0);
-    const culls = flockLogs.reduce((sum, log) => sum + log.culls, 0);
     const feedKg = flockLogs.reduce((sum, log) => sum + log.feed_consumed_kg, 0);
     const flockSales = sales.filter((sale) => sale.flock_id === flock.id);
     const birdsSold = 0;
@@ -76,7 +75,6 @@ export function buildFlockMetrics(
     const remaining = currentLiveBirds({
       initialBirds: flock.initial_birds,
       mortality,
-      culls,
       birdsSold,
     });
 
@@ -86,7 +84,6 @@ export function buildFlockMetrics(
       mortalityPct: mortalityRatePercent({
         initialBirds: flock.initial_birds,
         mortality,
-        culls,
       }),
       feedKg,
       birdsSold,

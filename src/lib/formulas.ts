@@ -1,25 +1,20 @@
 export function currentLiveBirds(params: {
   initialBirds: number;
   mortality: number;
-  culls: number;
   birdsSold: number;
 }) {
   return Math.max(
     0,
-    params.initialBirds -
-      params.mortality -
-      params.culls -
-      params.birdsSold,
+    params.initialBirds - params.mortality - params.birdsSold,
   );
 }
 
 export function mortalityRatePercent(params: {
   initialBirds: number;
   mortality: number;
-  culls: number;
 }) {
   if (params.initialBirds <= 0) return 0;
-  return ((params.mortality + params.culls) / params.initialBirds) * 100;
+  return (params.mortality / params.initialBirds) * 100;
 }
 
 export function feedConversionRatio(params: {

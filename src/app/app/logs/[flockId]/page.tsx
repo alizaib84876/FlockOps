@@ -78,13 +78,11 @@ export default async function FlockLogPage({
   const liveBirds = currentLiveBirds({
     initialBirds: flock.initial_birds,
     mortality: totals.mortality,
-    culls: totals.culls,
     birdsSold: 0,
   });
   const mortalityPct = mortalityRatePercent({
     initialBirds: flock.initial_birds,
     mortality: totals.mortality,
-    culls: totals.culls,
   });
 
   return (

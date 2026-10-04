@@ -11,6 +11,9 @@ import { listExpenses, listSales } from "@/lib/finance/queries";
 import { canSeeFinance, canSeeProfit } from "@/lib/finance/types";
 import { listFlocks } from "@/lib/flocks/queries";
 import { listAllDailyLogs } from "@/lib/logs/all";
+import { missingLogsByFarm } from "@/lib/logs/missing";
+import { todayIsoDate } from "@/lib/logs/types";
+import { MissingLogsReminder } from "@/components/logs/missing-logs-reminder";
 
 export const metadata = {
   title: "Overview",
@@ -56,6 +59,7 @@ export default async function AppHomePage() {
     (sum, farm) => sum + farm.currentExpenses,
     0,
   );
+  const missingToday = missingLogsByFarm(flocks, logs, todayIsoDate());
 
   return (
     <div className="space-y-10">
@@ -102,6 +106,8 @@ export default async function AppHomePage() {
           </p>
         </article>
       </div>
+
+      <MissingLogsReminder date={todayIsoDate()} groups={missingToday} />
 
       {snapshots.length === 0 ? (
         <p className="text-sm text-muted">
