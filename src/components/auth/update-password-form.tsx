@@ -50,37 +50,48 @@ export function UpdatePasswordForm() {
 
   if (done) {
     return (
-      <div className="mt-8 space-y-4">
-        <p className="text-sm text-sage" role="status">
-          Password updated. Sign in with your new password.
+      <>
+        <h1 className="display mt-6 text-3xl text-ink">Password updated</h1>
+        <p className="mt-3 text-sm leading-6 text-muted" role="status">
+          Sign in with your new password.
         </p>
         <Link
           href="/login"
-          className="flex h-12 items-center justify-center rounded-full bg-sage-deep text-sm font-medium text-panel"
+          className="mt-8 flex h-12 items-center justify-center rounded-full bg-sage-deep text-sm font-medium text-panel"
         >
           Sign in
         </Link>
-      </div>
+      </>
     );
   }
 
   if (hasSession === false) {
     return (
-      <p className="mt-8 text-sm text-muted">
-        Open the reset link from your email, or{" "}
-        <Link href="/forgot-password" className="font-medium text-ink hover:underline">
-          request a new one
-        </Link>
-        .
-      </p>
+      <>
+        <h1 className="display mt-6 text-3xl text-ink">New password</h1>
+        <p className="mt-8 text-sm text-muted">
+          Open the reset link from your email, or{" "}
+          <Link href="/forgot-password" className="font-medium text-ink hover:underline">
+            request a new one
+          </Link>
+          .
+        </p>
+      </>
     );
   }
 
   if (hasSession === null) {
-    return <p className="mt-8 text-sm text-muted">Loading…</p>;
+    return (
+      <>
+        <h1 className="display mt-6 text-3xl text-ink">New password</h1>
+        <p className="mt-8 text-sm text-muted">Loading…</p>
+      </>
+    );
   }
 
   return (
+    <>
+      <h1 className="display mt-6 text-3xl text-ink">New password</h1>
     <form className="mt-8 space-y-4" onSubmit={onSubmit} aria-label="Set new password">
       <PasswordInput
         name="password"
@@ -107,5 +118,6 @@ export function UpdatePasswordForm() {
         {pending ? "Saving…" : "Update password"}
       </button>
     </form>
+    </>
   );
 }

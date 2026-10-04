@@ -80,21 +80,33 @@ export function SignupForm({
 
   if (message) {
     return (
-      <div className="mt-8 space-y-4">
-        <p className="text-sm text-sage" role="status">
+      <>
+        <h1 className="display mt-6 text-3xl text-ink">
+          {isInvite ? "Account created" : "Workspace created"}
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-muted" role="status">
           {message}
         </p>
         <Link
           href="/login"
-          className="flex h-12 items-center justify-center rounded-full bg-sage-deep text-sm font-medium text-panel"
+          className="mt-8 flex h-12 items-center justify-center rounded-full bg-sage-deep text-sm font-medium text-panel"
         >
           Sign in
         </Link>
-      </div>
+      </>
     );
   }
 
   return (
+    <>
+      <h1 className="display mt-6 text-3xl text-ink">
+        {isInvite ? "Join workspace" : "Create a workspace"}
+      </h1>
+      <p className="mt-2 text-sm leading-6 text-muted">
+        {isInvite
+          ? "Create your password to join this workspace."
+          : "Create an owner workspace for your farms."}
+      </p>
     <form className="mt-8 space-y-4" onSubmit={onSubmit} aria-label="Create workspace">
       {isInvite ? (
         <p className="rounded-xl border border-line bg-background px-4 py-3 text-sm text-muted">
@@ -184,5 +196,6 @@ export function SignupForm({
         </Link>
       </p>
     </form>
+    </>
   );
 }
