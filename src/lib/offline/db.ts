@@ -26,6 +26,7 @@ export type CachedFlock = {
   shed_name: string;
   placement_date: string;
   initial_birds: number;
+  status?: string;
   cached_at: string;
 };
 

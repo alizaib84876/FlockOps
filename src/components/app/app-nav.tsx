@@ -1,7 +1,22 @@
 "use client";
 
-import Link from "next/link";
+import Link, { useLinkStatus } from "next/link";
 import { usePathname } from "next/navigation";
+
+function NavLabel({ children }: { children: React.ReactNode }) {
+  const { pending } = useLinkStatus();
+  return (
+    <span className="inline-flex items-center gap-2">
+      {children}
+      {pending ? (
+        <span
+          aria-hidden
+          className="h-1.5 w-1.5 animate-pulse rounded-full bg-sage"
+        />
+      ) : null}
+    </span>
+  );
+}
 
 export function AppNav({
   canSeeFarms,
@@ -35,11 +50,11 @@ export function AppNav({
           <Link
             key={item.href}
             href={item.href}
-            className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium ${
+            className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
               active ? "bg-panel text-ink" : "text-muted hover:bg-panel hover:text-ink"
             }`}
           >
-            {item.label}
+            <NavLabel>{item.label}</NavLabel>
           </Link>
         );
       })}

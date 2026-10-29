@@ -15,7 +15,23 @@ export function workerWriteWindowStart() {
   return shiftIsoDate(todayIsoDate(), -1);
 }
 
-export function canWriteDailyLog(role: UserRole, logDate: string) {
-  if (role !== "WORKER") return true;
-  return logDate >= workerWriteWindowStart();
+export function dailyLogWriteBlock(
+  role: UserRole,
+  logDate: string,
+  flockStatus?: string | null,
+) {
+  if (flockStatus && flockStatus !== "ACTIVE") {
+    return "This batch is closed. Logs cannot be added.";
+  }
+  if (role !== "WORKER") return null;
+  if (logDate >= workerWriteWindowStart()) return null;
+  return "This date cannot be edited.";
+}
+
+export function canWriteDailyLog(
+  role: UserRole,
+  logDate: string,
+  flockStatus?: string | null,
+) {
+  return dailyLogWriteBlock(role, logDate, flockStatus) === null;
 }

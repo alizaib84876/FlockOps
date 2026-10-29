@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { createClient } from "@/lib/supabase/server";
-import { canWriteDailyLog } from "@/lib/logs/permissions";
+import { dailyLogWriteBlock } from "@/lib/logs/permissions";
 import { CULLS_LABEL } from "@/lib/logs/types";
 
 export type ActionState = {
@@ -59,11 +59,16 @@ export async function saveDailyLog(
   if (isUpdate && !reason) {
     return { error: "A reason is required when changing an existing log." };
   }
-  if (!canWriteDailyLog(profile.role, logDate)) {
-    return { error: "This date cannot be edited." };
-  }
-
   const supabase = await createClient();
+  const { data: flock, error: flockError } = await supabase
+    .from("flocks")
+    .select("status")
+    .eq("id", flockId)
+    .maybeSingle();
+  if (flockError || !flock) return { error: "Flock not found." };
+
+  const blocked = dailyLogWriteBlock(profile.role, logDate, flock.status);
+  if (blocked) return { error: blocked };
   const payload = {
     p_flock_id: flockId,
     p_log_date: logDate,

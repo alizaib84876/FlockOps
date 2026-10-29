@@ -62,17 +62,40 @@ export async function uploadExpenseReceipt(
   return { path };
 }
 
+function isRemoteReceipt(receipt: string) {
+  return receipt.startsWith("http://") || receipt.startsWith("https://");
+}
+
 export async function receiptDisplayUrl(
   supabase: SupabaseClient,
   receipt: string | null,
 ): Promise<string | null> {
-  if (!receipt) return null;
-  if (receipt.startsWith("http://") || receipt.startsWith("https://")) {
-    return receipt;
+  const map = await receiptDisplayUrls(supabase, [receipt]);
+  return receipt ? (map.get(receipt) ?? null) : null;
+}
+
+export async function receiptDisplayUrls(
+  supabase: SupabaseClient,
+  receipts: Array<string | null | undefined>,
+): Promise<Map<string, string>> {
+  const unique = [...new Set(receipts.filter((value): value is string => Boolean(value)))];
+  const map = new Map<string, string>();
+  const paths: string[] = [];
+
+  for (const receipt of unique) {
+    if (isRemoteReceipt(receipt)) map.set(receipt, receipt);
+    else paths.push(receipt);
   }
-  const { data, error } = await supabase.storage
+
+  if (paths.length === 0) return map;
+
+  const { data } = await supabase.storage
     .from(RECEIPT_BUCKET)
-    .createSignedUrl(receipt, 60 * 60);
-  if (error || !data?.signedUrl) return null;
-  return data.signedUrl;
+    .createSignedUrls(paths, 60 * 60);
+
+  for (const item of data ?? []) {
+    if (item.path && item.signedUrl) map.set(item.path, item.signedUrl);
+  }
+
+  return map;
 }

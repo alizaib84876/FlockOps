@@ -15,12 +15,14 @@ export function DailyLogForm({
   existing,
   minDate,
   canWrite = true,
+  blockedReason,
 }: {
   flockId: string;
   logDate: string;
   existing: DailyLog | null;
   minDate: string;
   canWrite?: boolean;
+  blockedReason?: string | null;
 }) {
   const router = useRouter();
   const { online, syncNow } = useOffline();
@@ -101,9 +103,7 @@ export function DailyLogForm({
       return;
     }
     if (!canWrite) {
-      setError(
-        "This date cannot be edited.",
-      );
+      setError(blockedReason || "This date cannot be edited.");
       return;
     }
 
@@ -189,6 +189,7 @@ export function DailyLogForm({
             step={1}
             required
             defaultValue={defaults.mortality}
+            disabled={!canWrite}
             className={fieldClass}
           />
         </label>
@@ -202,6 +203,7 @@ export function DailyLogForm({
             min={0}
             step={1}
             defaultValue={defaults.culls || ""}
+            disabled={!canWrite}
             className={fieldClass}
           />
         </label>
@@ -215,6 +217,7 @@ export function DailyLogForm({
             step="0.01"
             required
             defaultValue={defaults.feed_consumed_kg}
+            disabled={!canWrite}
             className={fieldClass}
           />
         </label>
@@ -228,6 +231,7 @@ export function DailyLogForm({
             step="0.01"
             required
             defaultValue={defaults.water_liters}
+            disabled={!canWrite}
             className={fieldClass}
           />
         </label>
@@ -242,6 +246,7 @@ export function DailyLogForm({
           min={0}
           step="0.01"
           defaultValue={defaults.sample_weight_grams}
+          disabled={!canWrite}
           className={fieldClass}
         />
       </label>
@@ -252,6 +257,7 @@ export function DailyLogForm({
           name="notes"
           rows={3}
           defaultValue={defaults.notes}
+          disabled={!canWrite}
           className="mt-1.5 w-full rounded-xl border border-line bg-background px-4 py-3 text-base outline-none ring-sage/30 focus:ring-4"
         />
       </label>
@@ -268,7 +274,9 @@ export function DailyLogForm({
       ) : null}
 
       {!canWrite ? (
-        <p className="text-sm text-muted">This date cannot be edited.</p>
+        <p className="text-sm text-muted">
+          {blockedReason || "This date cannot be edited."}
+        </p>
       ) : null}
 
       {error ? (
@@ -282,13 +290,15 @@ export function DailyLogForm({
         </p>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={pending || !canWrite}
-        className="h-14 w-full rounded-full bg-sage-deep text-base font-medium text-panel disabled:opacity-60"
-      >
-        {pending ? "Saving…" : isUpdate ? "Update log" : "Save log"}
-      </button>
+      {canWrite ? (
+        <button
+          type="submit"
+          disabled={pending}
+          className="h-14 w-full rounded-full bg-sage-deep text-base font-medium text-panel disabled:opacity-60"
+        >
+          {pending ? "Saving…" : isUpdate ? "Update log" : "Save log"}
+        </button>
+      ) : null}
     </form>
   );
 }

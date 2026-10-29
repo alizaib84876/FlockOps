@@ -10,7 +10,8 @@ import { roleLabel, type UserRole } from "@/lib/auth/profile";
 import { currentLiveBirds, mortalityRatePercent } from "@/lib/formulas";
 import { getFlock } from "@/lib/flocks/queries";
 import { getDailyLog, listDailyLogEdits, listDailyLogs } from "@/lib/logs/queries";
-import { canWriteDailyLog } from "@/lib/logs/permissions";
+import { canWriteDailyLog, dailyLogWriteBlock } from "@/lib/logs/permissions";
+import { statusLabel } from "@/lib/flocks/types";
 import { todayIsoDate } from "@/lib/logs/types";
 
 export async function generateMetadata({
@@ -43,7 +44,7 @@ export default async function FlockLogPage({
       <OfflineLogFallback
         flockId={flockId}
         logDate={logDate}
-        canWrite={canWriteDailyLog(profile.role, logDate)}
+        role={profile.role}
       />
     );
   }
@@ -61,7 +62,7 @@ export default async function FlockLogPage({
       <OfflineLogFallback
         flockId={flockId}
         logDate={logDate}
-        canWrite={canWriteDailyLog(profile.role, logDate)}
+        role={profile.role}
       />
     );
   }
@@ -94,7 +95,7 @@ export default async function FlockLogPage({
         </Link>
         <h1 className="display mt-3 text-4xl text-ink">{flock.flock_number}</h1>
         <p className="mt-2 text-muted">
-          {flock.farm_name} · {flock.shed_name}
+          {flock.farm_name} · {flock.shed_name} · {statusLabel(flock.status)}
         </p>
       </div>
 
@@ -121,7 +122,11 @@ export default async function FlockLogPage({
 
       <section className="rounded-2xl border border-line bg-panel p-5">
         <h2 className="text-lg font-semibold text-ink">
-          {existing ? "Update this day" : "Log this day"}
+          {flock.status === "ACTIVE"
+            ? existing
+              ? "Update this day"
+              : "Log this day"
+            : "History"}
         </h2>
         <div className="mt-5">
           <DailyLogForm
@@ -130,7 +135,12 @@ export default async function FlockLogPage({
             logDate={logDate}
             existing={existing}
             minDate={flock.placement_date}
-            canWrite={canWriteDailyLog(profile.role, logDate)}
+            canWrite={canWriteDailyLog(profile.role, logDate, flock.status)}
+            blockedReason={dailyLogWriteBlock(
+              profile.role,
+              logDate,
+              flock.status,
+            )}
           />
         </div>
       </section>

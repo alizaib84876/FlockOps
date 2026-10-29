@@ -6,7 +6,7 @@ import { FinanceAuditList } from "@/components/finance/finance-audit-list";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { listFarms } from "@/lib/farms/queries";
 import { canSeeFinance } from "@/lib/finance/types";
-import { receiptDisplayUrl } from "@/lib/finance/receipts";
+import { receiptDisplayUrl, receiptDisplayUrls } from "@/lib/finance/receipts";
 import { getExpense, listExpenseEdits } from "@/lib/finance/queries";
 import { createClient } from "@/lib/supabase/server";
 import { listFlocks } from "@/lib/flocks/queries";
@@ -39,6 +39,12 @@ export default async function EditExpensePage({
   if (!expense) notFound();
   const supabase = await createClient();
   const receiptPreviewUrl = await receiptDisplayUrl(supabase, expense.receipt_url);
+  const receiptHrefs = await receiptDisplayUrls(
+    supabase,
+    edits.flatMap((edit) =>
+      edit.field_name === "receipt_url" ? [edit.old_value, edit.new_value] : [],
+    ),
+  );
 
   return (
     <div className="space-y-8">
@@ -58,7 +64,7 @@ export default async function EditExpensePage({
       </section>
       <section className="rounded-2xl border border-line bg-panel p-6">
         <h2 className="mb-4 text-lg font-semibold text-ink">Audit trail</h2>
-        <FinanceAuditList edits={edits} />
+        <FinanceAuditList edits={edits} receiptHrefs={receiptHrefs} />
       </section>
     </div>
   );

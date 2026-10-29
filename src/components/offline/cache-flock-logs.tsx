@@ -21,6 +21,7 @@ export function CacheFlockLogs({
         shed_name: flock.shed_name,
         placement_date: flock.placement_date,
         initial_birds: flock.initial_birds,
+        status: flock.status,
       },
       logs.map((log) => ({
         flock_id: log.flock_id,

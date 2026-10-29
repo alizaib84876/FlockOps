@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateExpenseForm } from "@/components/finance/create-expense-form";
 import { CreateSaleForm } from "@/components/finance/create-sale-form";
+import { ViewReceipt } from "@/components/finance/view-receipt";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { listFarms } from "@/lib/farms/queries";
 import {
@@ -9,7 +10,9 @@ import {
   canSeeProfit,
   categoryLabel,
 } from "@/lib/finance/types";
+import { receiptDisplayUrls } from "@/lib/finance/receipts";
 import { listExpenses, listSales } from "@/lib/finance/queries";
+import { createClient } from "@/lib/supabase/server";
 import { listFlocks } from "@/lib/flocks/queries";
 
 export const metadata = {
@@ -36,6 +39,11 @@ export default async function ExpensesPage() {
     listExpenses(),
     showProfit ? listSales() : Promise.resolve([]),
   ]);
+  const supabase = await createClient();
+  const receiptHrefs = await receiptDisplayUrls(
+    supabase,
+    expenses.map((expense) => expense.receipt_url),
+  );
 
   return (
     <div className="space-y-10">
@@ -61,7 +69,11 @@ export default async function ExpensesPage() {
           </p>
         ) : (
           <ul className="mt-4 divide-y divide-line rounded-2xl border border-line bg-panel">
-            {expenses.map((expense) => (
+            {expenses.map((expense) => {
+              const receiptHref = expense.receipt_url
+                ? receiptHrefs.get(expense.receipt_url)
+                : undefined;
+              return (
               <li key={expense.id} className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
                 <div>
                   <p className="font-medium text-ink">
@@ -74,18 +86,19 @@ export default async function ExpensesPage() {
                       : "Farm overhead"}
                   </p>
                   <p className="mt-1 text-sm text-ink">{expense.description}</p>
-                  {expense.receipt_url ? (
-                    <p className="mt-1 text-xs text-muted">Receipt attached</p>
-                  ) : null}
                 </div>
-                <Link
-                  href={`/app/expenses/${expense.id}`}
-                  className="text-sm font-medium text-sage hover:text-sage-deep"
-                >
-                  Correct
-                </Link>
+                <div className="flex flex-col items-end gap-2">
+                  {receiptHref ? <ViewReceipt href={receiptHref} /> : null}
+                  <Link
+                    href={`/app/expenses/${expense.id}`}
+                    className="text-sm font-medium text-sage hover:text-sage-deep"
+                  >
+                    Correct
+                  </Link>
+                </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </section>

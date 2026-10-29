@@ -6,6 +6,8 @@ import { DailyLogForm } from "@/components/logs/daily-log-form";
 import { LogHistory } from "@/components/logs/log-history";
 import { getCachedFlock, getCachedLogs } from "@/lib/offline/queue";
 import type { CachedFlock, CachedLog } from "@/lib/offline/db";
+import type { UserRole } from "@/lib/auth/profile";
+import { canWriteDailyLog, dailyLogWriteBlock } from "@/lib/logs/permissions";
 import type { DailyLog } from "@/lib/logs/types";
 
 function toDailyLog(row: CachedLog): DailyLog {
@@ -28,11 +30,11 @@ function toDailyLog(row: CachedLog): DailyLog {
 export function OfflineLogFallback({
   flockId,
   logDate,
-  canWrite = true,
+  role,
 }: {
   flockId: string;
   logDate: string;
-  canWrite?: boolean;
+  role: UserRole;
 }) {
   const [flock, setFlock] = useState<CachedFlock | null>(null);
   const [logs, setLogs] = useState<DailyLog[]>([]);
@@ -83,7 +85,8 @@ export function OfflineLogFallback({
           logDate={logDate}
           existing={existing}
           minDate={flock.placement_date}
-          canWrite={canWrite}
+          canWrite={canWriteDailyLog(role, logDate, flock.status)}
+          blockedReason={dailyLogWriteBlock(role, logDate, flock.status)}
         />
       </section>
       <LogHistory flockId={flockId} logDate={logDate} logs={logs} />
