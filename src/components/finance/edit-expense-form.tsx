@@ -40,7 +40,6 @@ export function EditExpenseForm({
   return (
     <form action={action} className="grid gap-4 sm:grid-cols-2">
       <input type="hidden" name="expense_id" value={expense.id} />
-      <input type="hidden" name="existing_receipt" value={expense.receipt_url ?? ""} />
       <label className="block text-sm font-medium text-ink">
         Farm
         <select
@@ -112,7 +111,10 @@ export function EditExpenseForm({
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
         />
       </label>
-      <ReceiptField currentUrl={receiptPreviewUrl} />
+      <ReceiptField
+        currentUrl={receiptPreviewUrl}
+        existingPath={expense.receipt_url}
+      />
       <label className="block text-sm font-medium text-ink sm:col-span-2">
         Description
         <input
