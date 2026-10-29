@@ -6,7 +6,9 @@ import { FinanceAuditList } from "@/components/finance/finance-audit-list";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { listFarms } from "@/lib/farms/queries";
 import { canSeeFinance } from "@/lib/finance/types";
+import { receiptDisplayUrl } from "@/lib/finance/receipts";
 import { getExpense, listExpenseEdits } from "@/lib/finance/queries";
+import { createClient } from "@/lib/supabase/server";
 import { listFlocks } from "@/lib/flocks/queries";
 
 export async function generateMetadata({
@@ -35,6 +37,8 @@ export default async function EditExpensePage({
     listExpenseEdits(expenseId).catch(() => []),
   ]);
   if (!expense) notFound();
+  const supabase = await createClient();
+  const receiptPreviewUrl = await receiptDisplayUrl(supabase, expense.receipt_url);
 
   return (
     <div className="space-y-8">
@@ -45,7 +49,12 @@ export default async function EditExpensePage({
         <h1 className="display mt-3 text-4xl text-ink">Correct expense</h1>
       </div>
       <section className="rounded-2xl border border-line bg-panel p-6">
-        <EditExpenseForm expense={expense} farms={farms} flocks={flocks} />
+        <EditExpenseForm
+          expense={expense}
+          farms={farms}
+          flocks={flocks}
+          receiptPreviewUrl={receiptPreviewUrl}
+        />
       </section>
       <section className="rounded-2xl border border-line bg-panel p-6">
         <h2 className="mb-4 text-lg font-semibold text-ink">Audit trail</h2>

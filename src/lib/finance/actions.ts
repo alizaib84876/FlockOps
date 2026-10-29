@@ -4,6 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth/require-profile";
 import { canSeeFinance, canSeeProfit, EXPENSE_CATEGORIES } from "@/lib/finance/types";
+import {
+  receiptFileFromForm,
+  uploadExpenseReceipt,
+} from "@/lib/finance/receipts";
 import { createClient } from "@/lib/supabase/server";
 
 export type ActionState = { error?: string };
@@ -27,7 +31,7 @@ export async function createExpense(
   const amount = Number(formData.get("amount"));
   const description = read(formData, "description");
   const expenseDate = read(formData, "expense_date");
-  const receiptUrl = read(formData, "receipt_url");
+  const receiptFile = receiptFileFromForm(formData);
 
   if (!farmId) return { error: "Select a farm." };
   if (!EXPENSE_CATEGORIES.includes(category as (typeof EXPENSE_CATEGORIES)[number])) {
@@ -38,6 +42,16 @@ export async function createExpense(
   if (!expenseDate) return { error: "Date is required." };
 
   const supabase = await createClient();
+  let receiptUrl: string | null = null;
+  if (receiptFile) {
+    const uploaded = await uploadExpenseReceipt(
+      supabase,
+      profile.organization_id,
+      receiptFile,
+    );
+    if (uploaded.error) return { error: uploaded.error };
+    receiptUrl = uploaded.path ?? null;
+  }
 
   if (flockId) {
     const { data: flock, error: flockError } = await supabase
@@ -149,7 +163,8 @@ export async function updateExpense(
   const amount = Number(formData.get("amount"));
   const description = read(formData, "description");
   const expenseDate = read(formData, "expense_date");
-  const receiptUrl = read(formData, "receipt_url");
+  const existingReceipt = read(formData, "existing_receipt");
+  const receiptFile = receiptFileFromForm(formData);
   const reason = read(formData, "reason");
 
   if (!expenseId) return { error: "Expense is missing." };
@@ -163,6 +178,17 @@ export async function updateExpense(
   if (!reason) return { error: "A reason is required to correct an expense." };
 
   const supabase = await createClient();
+  let receiptUrl = existingReceipt || null;
+  if (receiptFile) {
+    const uploaded = await uploadExpenseReceipt(
+      supabase,
+      profile.organization_id,
+      receiptFile,
+    );
+    if (uploaded.error) return { error: uploaded.error };
+    receiptUrl = uploaded.path ?? receiptUrl;
+  }
+
   const { error } = await supabase.rpc("update_expense", {
     p_id: expenseId,
     p_farm_id: farmId,
@@ -171,7 +197,7 @@ export async function updateExpense(
     p_amount: amount,
     p_description: description,
     p_expense_date: expenseDate,
-    p_receipt_url: receiptUrl || null,
+    p_receipt_url: receiptUrl,
     p_reason: reason,
   });
 

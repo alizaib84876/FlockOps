@@ -74,6 +74,9 @@ export default async function ExpensesPage() {
                       : "Farm overhead"}
                   </p>
                   <p className="mt-1 text-sm text-ink">{expense.description}</p>
+                  {expense.receipt_url ? (
+                    <p className="mt-1 text-xs text-muted">Receipt attached</p>
+                  ) : null}
                 </div>
                 <Link
                   href={`/app/expenses/${expense.id}`}

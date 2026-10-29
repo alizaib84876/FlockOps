@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useMemo, useState } from "react";
+import { ReceiptField } from "@/components/finance/receipt-field";
 import { createExpense, type ActionState } from "@/lib/finance/actions";
 import { categoryLabel, EXPENSE_CATEGORIES } from "@/lib/finance/types";
 import { todayIsoDate } from "@/lib/logs/types";
@@ -97,14 +98,7 @@ export function CreateExpenseForm({
           className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
         />
       </label>
-      <label className="block text-sm font-medium text-ink">
-        Receipt URL
-        <input
-          name="receipt_url"
-          type="url"
-          className="mt-1.5 h-12 w-full rounded-xl border border-line bg-background px-4 text-base outline-none ring-sage/30 focus:ring-4"
-        />
-      </label>
+      <ReceiptField />
       <label className="block text-sm font-medium text-ink sm:col-span-2">
         Description
         <input
